@@ -37,14 +37,14 @@ class Perspective:
         self.THETA = THETA
         self.PHI = PHI
         if self._width > self._height:
-            self.wFOV = FOV
-            self.hFOV = (float(self._height) / self._width) * FOV
+            self.w_len = np.tan(np.radians(FOV / 2.0))
+            self.h_len = self.w_len * float(self._height) / self._width
         else:
-            self.wFOV = (float(self._width) / self._height) * FOV
-            self.hFOV = FOV
+            self.h_len = np.tan(np.radians(FOV / 2.0))
+            self.w_len = self.h_len * float(self._width) / self._height
 
-        self.w_len = np.tan(np.radians(self.wFOV / 2.0))
-        self.h_len = np.tan(np.radians(self.hFOV / 2.0))
+        self.wFOV = np.degrees(2 * np.arctan(self.w_len))
+        self.hFOV = np.degrees(2 * np.arctan(self.h_len))
 
     def GetEquirec(self, height, width, img=None):
         #
@@ -99,7 +99,7 @@ class Perspective:
             0)
         # Remap the image using the longitude and latitude maps
         persp = cv2.remap(self._img, lon_map.astype(np.float32), lat_map.astype(
-            np.float32), cv2.INTER_CUBIC, borderMode=cv2.BORDER_WRAP)  # BORDER_CONSTANT) #))
+            np.float32), cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0))
         # Apply the mask to the equirectangular image
         mask = mask * inverse_mask
         mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
